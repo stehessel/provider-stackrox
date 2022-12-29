@@ -5,18 +5,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.10.0
   creationTimestamp: null
-  name: mytypes.sample.stackrox.crossplane.io
+  name: initbundles.initbundle.stackrox.crossplane.io
 spec:
-  group: sample.stackrox.crossplane.io
+  group: initbundle.stackrox.crossplane.io
   names:
     categories:
     - crossplane
     - managed
-    - stackrox
-    kind: MyType
-    listKind: MyTypeList
-    plural: mytypes
-    singular: mytype
+    - redhat
+    kind: InitBundle
+    listKind: InitBundleList
+    plural: initbundles
+    singular: initbundle
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -35,7 +35,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: A MyType is an example API type.
+        description: A InitBundle is an example API type.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -50,7 +50,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: A MyTypeSpec defines the desired state of a MyType.
+            description: A InitBundleSpec defines the desired state of a InitBundle.
             properties:
               deletionPolicy:
                 default: Delete
@@ -62,12 +62,14 @@ spec:
                 - Delete
                 type: string
               forProvider:
-                description: MyTypeParameters are the configurable fields of a MyType.
+                description: InitBundleParameters are the configurable fields of a
+                  InitBundle.
                 properties:
-                  configurableField:
+                  name:
+                    description: Name of the init bundle.
                     type: string
                 required:
-                - configurableField
+                - name
                 type: object
               providerConfigRef:
                 default:
@@ -241,12 +243,62 @@ spec:
             - forProvider
             type: object
           status:
-            description: A MyTypeStatus represents the observed state of a MyType.
+            description: A InitBundleStatus represents the observed state of a InitBundle.
             properties:
               atProvider:
-                description: MyTypeObservation are the observable fields of a MyType.
+                description: InitBundleObservation are the observable fields of a
+                  InitBundle.
                 properties:
-                  observableField:
+                  createdAt:
+                    description: CreatedAt timestamp of the init bundle.
+                    format: date-time
+                    type: string
+                  createdBy:
+                    description: CreatedBy timestamp of the init bundle.
+                    properties:
+                      attributes:
+                        additionalProperties:
+                          type: string
+                        description: Attributes of the user.
+                        type: object
+                      authProviderID:
+                        description: AuthProviderID which is associated with the user.
+                        type: string
+                      id:
+                        description: ID of the user.
+                        type: string
+                    required:
+                    - attributes
+                    - authProviderID
+                    - id
+                    type: object
+                  expiresAt:
+                    description: ExpiresAt timestamp of the init bundle.
+                    format: date-time
+                    type: string
+                  id:
+                    description: ID of the init bundle.
+                    type: string
+                  impactedClusters:
+                    description: ImpactedClusters defines a list of secured clusters
+                      impacted by the init bundle.
+                    items:
+                      description: ImpactedCluster represents a secured cluster impacted
+                        by an init bundle.
+                      properties:
+                        id:
+                          description: ID of the cluster.
+                          type: string
+                        name:
+                          description: Name of the cluster.
+                          type: string
+                      required:
+                      - id
+                      - name
+                      type: object
+                    type: array
+                  name:
+                    description: Name of the init bundle.
                     type: string
                 type: object
               conditions:

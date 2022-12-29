@@ -96,8 +96,16 @@ spec:
                 required:
                 - source
                 type: object
+              endpoint:
+                description: Endpoint of the Central instance.
+                type: string
+              serverName:
+                description: ServerName of the Central instance.
+                type: string
             required:
             - credentials
+            - endpoint
+            - serverName
             type: object
           status:
             description: A ProviderConfigStatus reflects the observed state of a ProviderConfig.

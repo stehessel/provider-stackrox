@@ -29,6 +29,12 @@ import (
 type ProviderConfigSpec struct {
 	// Credentials required to authenticate to this provider.
 	Credentials ProviderCredentials `json:"credentials"`
+
+	// ServerName of the Central instance.
+	ServerName string `json:"serverName"`
+
+	// Endpoint of the Central instance.
+	Endpoint string `json:"endpoint"`
 }
 
 // ProviderCredentials required to authenticate.

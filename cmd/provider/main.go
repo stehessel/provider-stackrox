@@ -38,8 +38,8 @@ import (
 
 	"github.com/crossplane/provider-stackrox/apis"
 	"github.com/crossplane/provider-stackrox/apis/v1alpha1"
-	stackrox "github.com/crossplane/provider-stackrox/internal/controller"
-	"github.com/crossplane/provider-stackrox/internal/controller/features"
+	stackrox "github.com/crossplane/provider-stackrox/pkg/controller"
+	"github.com/crossplane/provider-stackrox/pkg/features"
 )
 
 func main() {

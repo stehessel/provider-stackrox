@@ -13,8 +13,8 @@ PLATFORMS ?= linux_amd64 linux_arm64
 NPROCS ?= 1
 GO_TEST_PARALLEL := $(shell echo $$(( $(NPROCS) / 2 )))
 GO_STATIC_PACKAGES = $(GO_PROJECT)/cmd/provider
-GO_LDFLAGS += -X $(GO_PROJECT)/internal/version.Version=$(VERSION)
-GO_SUBDIRS += cmd internal apis
+GO_LDFLAGS += -X $(GO_PROJECT)/pkg/version.Version=$(VERSION)
+GO_SUBDIRS += cmd pkg apis
 GO111MODULE = on
 -include build/makelib/golang.mk
 
@@ -110,7 +110,7 @@ provider.prepare:
 
 # This target adds a new api type and its controller.
 # You would still need to register new api in "apis/<provider>.go" and
-# controller in "internal/controller/<provider>.go".
+# controller in "pkg/controller/<provider>.go".
 # Arguments:
 #   provider: Camel case name of your provider, e.g. GitHub, PlanetScale
 #   group: API group for the type you want to add.
