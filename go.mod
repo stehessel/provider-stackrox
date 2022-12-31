@@ -1,4 +1,4 @@
-module github.com/crossplane/provider-stackrox
+module github.com/stehessel/provider-stackrox
 
 go 1.19
 

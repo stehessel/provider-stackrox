@@ -20,8 +20,8 @@ package apis
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
-	initbundlev1alpha1 "github.com/crossplane/provider-stackrox/apis/initbundle/v1alpha1"
-	stackroxv1alpha1 "github.com/crossplane/provider-stackrox/apis/v1alpha1"
+	initbundlev1alpha1 "github.com/stehessel/provider-stackrox/apis/initbundle/v1alpha1"
+	stackroxv1alpha1 "github.com/stehessel/provider-stackrox/apis/v1alpha1"
 )
 
 func init() {

@@ -39,10 +39,10 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
-	"github.com/crossplane/provider-stackrox/apis/initbundle/v1alpha1"
-	apisv1alpha1 "github.com/crossplane/provider-stackrox/apis/v1alpha1"
-	"github.com/crossplane/provider-stackrox/pkg/clients/central"
-	"github.com/crossplane/provider-stackrox/pkg/features"
+	"github.com/stehessel/provider-stackrox/apis/initbundle/v1alpha1"
+	apisv1alpha1 "github.com/stehessel/provider-stackrox/apis/v1alpha1"
+	"github.com/stehessel/provider-stackrox/pkg/clients/central"
+	"github.com/stehessel/provider-stackrox/pkg/features"
 )
 
 const (

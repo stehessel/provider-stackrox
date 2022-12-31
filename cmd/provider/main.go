@@ -36,10 +36,10 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
-	"github.com/crossplane/provider-stackrox/apis"
-	"github.com/crossplane/provider-stackrox/apis/v1alpha1"
-	stackrox "github.com/crossplane/provider-stackrox/pkg/controller"
-	"github.com/crossplane/provider-stackrox/pkg/features"
+	"github.com/stehessel/provider-stackrox/apis"
+	"github.com/stehessel/provider-stackrox/apis/v1alpha1"
+	stackrox "github.com/stehessel/provider-stackrox/pkg/controller"
+	"github.com/stehessel/provider-stackrox/pkg/features"
 )
 
 func main() {
