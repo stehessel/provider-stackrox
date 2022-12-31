@@ -138,4 +138,8 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/stackrox/rox => github.com/stackrox/stackrox v0.0.0-20221213204921-1b6ae2de7ff4
+replace (
+	github.com/gogo/protobuf => github.com/connorgorman/protobuf v1.2.2-0.20210115205927-b892c1b298f7
+	github.com/stackrox/rox => github.com/stackrox/stackrox v0.0.0-20221213204921-1b6ae2de7ff4
+	go.uber.org/zap => github.com/stackrox/zap v1.15.1-0.20200720133746-810fd602fd0f
+)

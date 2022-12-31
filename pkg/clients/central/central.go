@@ -1,6 +1,7 @@
 package central
 
 import (
+	"context"
 	"time"
 
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
@@ -8,39 +9,40 @@ import (
 	"github.com/stackrox/rox/pkg/clientconn"
 	"github.com/stackrox/rox/pkg/grpc/client/authn/tokenbased"
 	"github.com/stackrox/rox/pkg/mtls"
-	"github.com/stackrox/rox/pkg/roxctl/common"
+	"github.com/stackrox/rox/pkg/netutil"
 	"google.golang.org/grpc"
 )
 
 // ErrNewClient represents an error to create a new central client.
-const ErrNewClient = "cannot create central client"
+const (
+	ErrNewClient   = "cannot create central client"
+	ErrCloseClient = "cannot close central client"
+)
 
 type grpcConfig struct {
-	insecure   bool
-	opts       clientconn.Options
-	serverName string
-	endpoint   string
+	opts     clientconn.Options
+	endpoint string
 }
 
 // NewGRPC creates a grpc connection to Central with the correct auth.
-func NewGRPC(serverName string, endpoint string, apiToken string) (*grpc.ClientConn, error) {
+func NewGRPC(ctx context.Context, endpoint string, apiToken string) (*grpc.ClientConn, error) {
+	serverName, _, _, err := netutil.ParseEndpoint(endpoint)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not parse endpoint")
+	}
 	opts := clientconn.Options{
 		TLS: clientconn.TLSConfigOptions{
-			ServerName:         serverName,
-			InsecureSkipVerify: true,
+			ServerName: serverName,
 		},
 		PerRPCCreds: tokenbased.PerRPCCredentials(apiToken),
 	}
-
-	return createGRPCConn(grpcConfig{
-		insecure:   true,
-		opts:       opts,
-		serverName: serverName,
-		endpoint:   endpoint,
+	return createGRPCConn(ctx, grpcConfig{
+		opts:     opts,
+		endpoint: endpoint,
 	})
 }
 
-func createGRPCConn(c grpcConfig) (*grpc.ClientConn, error) {
+func createGRPCConn(ctx context.Context, c grpcConfig) (*grpc.ClientConn, error) {
 	const initialBackoffDuration = 100 * time.Millisecond
 	retryOpts := []grpc_retry.CallOption{
 		grpc_retry.WithBackoff(grpc_retry.BackoffExponential(initialBackoffDuration)),
@@ -52,6 +54,6 @@ func createGRPCConn(c grpcConfig) (*grpc.ClientConn, error) {
 		grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(retryOpts...)),
 	}
 
-	connection, err := clientconn.GRPCConnection(common.Context(), mtls.CentralSubject, c.endpoint, c.opts, grpcDialOpts...)
+	connection, err := clientconn.GRPCConnection(ctx, mtls.CentralSubject, c.endpoint, c.opts, grpcDialOpts...)
 	return connection, errors.WithStack(err)
 }

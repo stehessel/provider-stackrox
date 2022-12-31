@@ -18,22 +18,30 @@ package initbundle
 
 import (
 	"context"
-	"fmt"
+	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/pkg/errors"
+	v1 "github.com/stackrox/rox/generated/api/v1"
+	"google.golang.org/grpc"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/connection"
 	"github.com/crossplane/crossplane-runtime/pkg/controller"
 	"github.com/crossplane/crossplane-runtime/pkg/event"
+	"github.com/crossplane/crossplane-runtime/pkg/meta"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
 	"github.com/crossplane/provider-stackrox/apis/initbundle/v1alpha1"
 	apisv1alpha1 "github.com/crossplane/provider-stackrox/apis/v1alpha1"
+	"github.com/crossplane/provider-stackrox/pkg/clients/central"
 	"github.com/crossplane/provider-stackrox/pkg/features"
 )
 
@@ -42,14 +50,11 @@ const (
 	errTrackPCUsage  = "cannot track ProviderConfig usage"
 	errGetPC         = "cannot get ProviderConfig"
 	errGetCreds      = "cannot get credentials"
-
-	errNewClient = "cannot create new Service"
+	errGetFailed     = "cannot get init bundle"
+	errCreateFailed  = "cannot create init bundle"
+	errUpdateFailed  = "cannot update int bundle"
+	errDeleteFailed  = "cannot delete init bundle"
 )
-
-// A NoOpService does nothing.
-type NoOpService struct{}
-
-var newNoOpService = func(_ []byte) (interface{}, error) { return &NoOpService{}, nil }
 
 // Setup adds a controller that reconciles InitBundle managed resources.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
@@ -62,10 +67,9 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 
 	r := managed.NewReconciler(mgr,
 		resource.ManagedKind(v1alpha1.InitBundleGroupVersionKind),
-		managed.WithExternalConnecter(&connector{
-			kube:         mgr.GetClient(),
-			usage:        resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
-			newServiceFn: newNoOpService,
+		managed.WithExternalConnectDisconnecter(&connector{
+			kube:  mgr.GetClient(),
+			usage: resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
 		}),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
@@ -81,9 +85,9 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 // A connector is expected to produce an ExternalClient when its Connect method
 // is called.
 type connector struct {
-	kube         client.Client
-	usage        resource.Tracker
-	newServiceFn func(creds []byte) (interface{}, error)
+	kube     client.Client
+	usage    resource.Tracker
+	external *external
 }
 
 // Connect typically produces an ExternalClient by:
@@ -107,25 +111,72 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 	}
 
 	cd := pc.Spec.Credentials
-	data, err := resource.CommonCredentialExtractor(ctx, cd.Source, c.kube, cd.CommonCredentialSelectors)
+	token, err := resource.CommonCredentialExtractor(ctx, cd.Source, c.kube, cd.CommonCredentialSelectors)
 	if err != nil {
 		return nil, errors.Wrap(err, errGetCreds)
 	}
+	stringToken := string(token)
 
-	svc, err := c.newServiceFn(data)
+	client, err := central.NewGRPC(ctx, pc.Spec.Endpoint, stringToken)
 	if err != nil {
-		return nil, errors.Wrap(err, errNewClient)
+		return nil, errors.Wrap(err, central.ErrNewClient)
 	}
+	c.external = &external{client: client}
+	return c.external, nil
+}
 
-	return &external{service: svc}, nil
+// Disconnect closes the connection of the external client.
+func (c *connector) Disconnect(ctx context.Context) error {
+	err := c.external.close()
+	return errors.Wrap(err, central.ErrCloseClient)
 }
 
 // An ExternalClient observes, then either creates, updates, or deletes an
 // external resource to ensure it reflects the managed resource's desired state.
 type external struct {
-	// A 'client' used to connect to the external resource API. In practice this
-	// would be something like an AWS SDK client.
-	service interface{}
+	client *grpc.ClientConn
+}
+
+func (c *external) close() error {
+	if c != nil && c.client != nil {
+		err := c.client.Close()
+		return errors.Wrap(err, central.ErrCloseClient)
+	}
+	return nil
+}
+
+func generateObservation(in *v1.InitBundleMeta) v1alpha1.InitBundleObservation {
+	att := v1alpha1.Attributes{}
+	for _, it := range in.CreatedBy.GetAttributes() {
+		att[it.GetKey()] = it.GetValue()
+	}
+
+	ic := []v1alpha1.ImpactedCluster{}
+	for _, it := range in.GetImpactedClusters() {
+		ic = append(ic, v1alpha1.ImpactedCluster{ID: it.GetId(), Name: it.GetName()})
+	}
+
+	return v1alpha1.InitBundleObservation{
+		CreatedAt: metav1.NewTime(time.Unix(in.CreatedAt.GetSeconds(), int64(in.CreatedAt.GetNanos()))),
+		CreatedBy: v1alpha1.User{
+			Attributes:     att,
+			AuthProviderID: in.CreatedBy.GetAuthProviderId(),
+			ID:             in.CreatedBy.GetId(),
+		},
+		ExpiresAt:        metav1.NewTime(time.Unix(in.ExpiresAt.GetSeconds(), int64(in.ExpiresAt.GetNanos()))),
+		ID:               in.Id,
+		ImpactedClusters: ic,
+		Name:             in.Name,
+	}
+}
+
+func isUpToDate(in *v1alpha1.InitBundle, observed *v1.InitBundleMeta) (bool, string) {
+	observedParams := v1alpha1.InitBundleParameters{Name: observed.GetName()}
+	if diff := cmp.Diff(in.Spec.ForProvider, observedParams, cmpopts.EquateEmpty()); diff != "" {
+		diff = "Observed difference in init bundle\n" + diff
+		return false, diff
+	}
+	return true, ""
 }
 
 func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
@@ -134,23 +185,30 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		return managed.ExternalObservation{}, errors.New(errNotInitBundle)
 	}
 
-	// These fmt statements should be removed in the real implementation.
-	fmt.Printf("Observing: %+v", cr)
+	svc := v1.NewClusterInitServiceClient(c.client)
+	resp, err := svc.GetInitBundles(ctx, &v1.Empty{})
+	if err != nil {
+		return managed.ExternalObservation{}, errors.Wrap(err, errGetFailed)
+	}
+	var bundle *v1.InitBundleMeta
+	for _, it := range resp.Items {
+		if it.GetName() == meta.GetExternalName(cr) {
+			bundle = it
+			break
+		}
+	}
+	if bundle == nil {
+		return managed.ExternalObservation{ResourceExists: false}, nil
+	}
+
+	cr.Status.AtProvider = generateObservation(bundle)
+	cr.SetConditions(xpv1.Available())
+	upToDate, diff := isUpToDate(cr, bundle)
 
 	return managed.ExternalObservation{
-		// Return false when the external resource does not exist. This lets
-		// the managed resource reconciler know that it needs to call Create to
-		// (re)create the resource, or that it has successfully been deleted.
-		ResourceExists: true,
-
-		// Return false when the external resource exists, but it not up to date
-		// with the desired managed resource state. This lets the managed
-		// resource reconciler know that it needs to call Update.
-		ResourceUpToDate: true,
-
-		// Return any details that may be required to connect to the external
-		// resource. These will be stored as the connection secret.
-		ConnectionDetails: managed.ConnectionDetails{},
+		ResourceExists:   true,
+		ResourceUpToDate: upToDate,
+		Diff:             diff,
 	}, nil
 }
 
@@ -159,13 +217,24 @@ func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 	if !ok {
 		return managed.ExternalCreation{}, errors.New(errNotInitBundle)
 	}
+	cr.SetConditions(xpv1.Creating())
 
-	fmt.Printf("Creating: %+v", cr)
+	svc := v1.NewClusterInitServiceClient(c.client)
+	req := v1.InitBundleGenRequest{Name: cr.Spec.ForProvider.Name}
+	resp, err := svc.GenerateInitBundle(ctx, &req)
+	if err != nil {
+		return managed.ExternalCreation{}, errors.Wrap(err, errCreateFailed)
+	}
 
+	cr.Status.AtProvider = generateObservation(resp.GetMeta())
+	if m := resp.GetMeta(); m != nil {
+		meta.SetExternalName(cr, m.GetName())
+	}
 	return managed.ExternalCreation{
-		// Optionally return any details that may be required to connect to the
-		// external resource. These will be stored as the connection secret.
-		ConnectionDetails: managed.ConnectionDetails{},
+		ConnectionDetails: managed.ConnectionDetails{
+			"helmValuesBundle": resp.GetHelmValuesBundle(),
+			"kubectlBundle":    resp.GetKubectlBundle(),
+		},
 	}, nil
 }
 
@@ -174,14 +243,13 @@ func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 	if !ok {
 		return managed.ExternalUpdate{}, errors.New(errNotInitBundle)
 	}
+	if cr.GetCondition(xpv1.TypeReady) == xpv1.Creating() ||
+		cr.GetCondition(xpv1.TypeReady) == xpv1.Deleting() {
+		return managed.ExternalUpdate{}, nil
+	}
 
-	fmt.Printf("Updating: %+v", cr)
-
-	return managed.ExternalUpdate{
-		// Optionally return any details that may be required to connect to the
-		// external resource. These will be stored as the connection secret.
-		ConnectionDetails: managed.ConnectionDetails{},
-	}, nil
+	err := c.Delete(ctx, mg)
+	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateFailed)
 }
 
 func (c *external) Delete(ctx context.Context, mg resource.Managed) error {
@@ -189,8 +257,10 @@ func (c *external) Delete(ctx context.Context, mg resource.Managed) error {
 	if !ok {
 		return errors.New(errNotInitBundle)
 	}
+	mg.SetConditions(xpv1.Deleting())
 
-	fmt.Printf("Deleting: %+v", cr)
-
-	return nil
+	svc := v1.NewClusterInitServiceClient(c.client)
+	req := v1.InitBundleRevokeRequest{Ids: []string{cr.Status.AtProvider.ID}}
+	_, err := svc.RevokeInitBundle(ctx, &req)
+	return errors.Wrap(err, errDeleteFailed)
 }
