@@ -20,6 +20,7 @@ package apis
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
+	clusterv1alpha1 "github.com/stehessel/provider-stackrox/apis/cluster/v1alpha1"
 	initbundlev1alpha1 "github.com/stehessel/provider-stackrox/apis/initbundle/v1alpha1"
 	stackroxv1alpha1 "github.com/stehessel/provider-stackrox/apis/v1alpha1"
 )
@@ -28,6 +29,7 @@ func init() {
 	// Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
 	AddToSchemes = append(AddToSchemes,
 		stackroxv1alpha1.SchemeBuilder.AddToScheme,
+		clusterv1alpha1.SchemeBuilder.AddToScheme,
 		initbundlev1alpha1.SchemeBuilder.AddToScheme,
 	)
 }

@@ -20,6 +20,7 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/controller"
 	ctrl "sigs.k8s.io/controller-runtime"
 
+	"github.com/stehessel/provider-stackrox/pkg/controller/cluster"
 	"github.com/stehessel/provider-stackrox/pkg/controller/config"
 	"github.com/stehessel/provider-stackrox/pkg/controller/initbundle"
 )
@@ -29,6 +30,7 @@ import (
 func Setup(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
 		config.Setup,
+		cluster.Setup,
 		initbundle.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
