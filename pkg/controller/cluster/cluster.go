@@ -146,6 +146,15 @@ func (c *external) close() error {
 }
 
 func generateObservation(in *storage.Cluster) v1alpha1.ClusterObservation {
+	s := in.GetMostRecentSensorId()
+	mostRecentSensor := v1alpha1.SensorDeployment{
+		AppNamespace:        s.GetAppNamespace(),
+		AppNamespaceID:      s.GetAppNamespaceId(),
+		AppServiceAccountID: s.GetAppServiceaccountId(),
+		DefaultNamespaceID:  s.GetDefaultNamespaceId(),
+		K8SNodeName:         s.GetK8SNodeName(),
+		SystemNamespaceID:   s.GetSystemNamespaceId(),
+	}
 	return v1alpha1.ClusterObservation{
 		AdmissionController:        in.GetAdmissionController(),
 		AdmissionControllerEvents:  in.GetAdmissionControllerEvents(),
@@ -157,6 +166,7 @@ func generateObservation(in *storage.Cluster) v1alpha1.ClusterObservation {
 		Labels:                     in.GetLabels(),
 		MainImage:                  in.GetMainImage(),
 		ManagedBy:                  storage.ManagerType_name[int32(in.GetManagedBy())],
+		MostRecentSensor:           mostRecentSensor,
 		Name:                       in.GetName(),
 		SlimCollector:              in.GetSlimCollector(),
 		Tolerations:                !in.GetTolerationsConfig().GetDisabled(),

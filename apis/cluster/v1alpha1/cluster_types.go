@@ -73,6 +73,15 @@ type ClusterParameters struct {
 	Type string `json:"type"`
 }
 
+type SensorDeployment struct {
+	AppNamespace        string `json:"appNamespace,omitempty"`
+	AppNamespaceID      string `json:"appNamespaceID,omitempty"`
+	AppServiceAccountID string `json:"appServiceAccountID,omitempty"`
+	DefaultNamespaceID  string `json:"defaultNamespaceID,omitempty"`
+	K8SNodeName         string `json:"k8sNodeName,omitempty"`
+	SystemNamespaceID   string `json:"systemNamespaceID,omitempty"`
+}
+
 // ClusterObservation are the observable fields of a Cluster.
 type ClusterObservation struct {
 	AdmissionController bool `json:"admissionController,omitempty"`
@@ -98,6 +107,8 @@ type ClusterObservation struct {
 
 	// +kubebuilder:validation:Enum=MANAGER_TYPE_UNKNOWN;MANAGER_TYPE_MANUAL;MANAGER_TYPE_HELM_CHART;MANAGER_TYPE_KUBERNETES_OPERATOR
 	ManagedBy string `json:"managedBy,omitempty"`
+
+	MostRecentSensor SensorDeployment `json:"mostRecentSensor,omitempty"`
 
 	Name string `json:"name,omitempty"`
 
