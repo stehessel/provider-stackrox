@@ -51,8 +51,9 @@ const (
 	errGetPC         = "cannot get ProviderConfig"
 	errGetCreds      = "cannot get credentials"
 	errGetFailed     = "cannot get init bundle"
+	errObserveFailed = "cannot observe init bundle"
 	errCreateFailed  = "cannot create init bundle"
-	errUpdateFailed  = "cannot update int bundle"
+	errUpdateFailed  = "cannot update init bundle"
 	errDeleteFailed  = "cannot delete init bundle"
 )
 
@@ -179,23 +180,29 @@ func isUpToDate(in *v1alpha1.InitBundle, observed *v1.InitBundleMeta) (bool, str
 	return true, ""
 }
 
+func (c *external) getInitBundle(ctx context.Context, cr *v1alpha1.InitBundle) (*v1.InitBundleMeta, error) {
+	svc := v1.NewClusterInitServiceClient(c.client)
+	resp, err := svc.GetInitBundles(ctx, &v1.Empty{})
+	if err != nil {
+		return nil, errors.Wrap(err, errObserveFailed)
+	}
+	for _, it := range resp.Items {
+		if it.GetName() == meta.GetExternalName(cr) {
+			return it, nil
+		}
+	}
+	return nil, nil
+}
+
 func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
 	cr, ok := mg.(*v1alpha1.InitBundle)
 	if !ok {
 		return managed.ExternalObservation{}, errors.New(errNotInitBundle)
 	}
 
-	svc := v1.NewClusterInitServiceClient(c.client)
-	resp, err := svc.GetInitBundles(ctx, &v1.Empty{})
+	bundle, err := c.getInitBundle(ctx, cr)
 	if err != nil {
-		return managed.ExternalObservation{}, errors.Wrap(err, errGetFailed)
-	}
-	var bundle *v1.InitBundleMeta
-	for _, it := range resp.Items {
-		if it.GetName() == meta.GetExternalName(cr) {
-			bundle = it
-			break
-		}
+		return managed.ExternalObservation{}, errors.Wrap(err, errObserveFailed)
 	}
 	if bundle == nil {
 		return managed.ExternalObservation{ResourceExists: false}, nil
@@ -226,8 +233,8 @@ func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 		return managed.ExternalCreation{}, errors.Wrap(err, errCreateFailed)
 	}
 
-	cr.Status.AtProvider = generateObservation(resp.GetMeta())
 	if m := resp.GetMeta(); m != nil {
+		cr.Status.AtProvider = generateObservation(m)
 		meta.SetExternalName(cr, m.GetName())
 	}
 	return managed.ExternalCreation{

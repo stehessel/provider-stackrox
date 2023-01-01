@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"google.golang.org/grpc"
 
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
@@ -36,10 +37,6 @@ import (
 // https://github.com/crossplane/crossplane/blob/master/CONTRIBUTING.md#contributing-code
 
 func TestObserve(t *testing.T) {
-	type fields struct {
-		service interface{}
-	}
-
 	type args struct {
 		ctx context.Context
 		mg  resource.Managed
@@ -52,7 +49,7 @@ func TestObserve(t *testing.T) {
 
 	cases := map[string]struct {
 		reason string
-		fields fields
+		client *grpc.ClientConn
 		args   args
 		want   want
 	}{
@@ -61,7 +58,7 @@ func TestObserve(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			e := external{service: tc.fields.service}
+			e := external{client: tc.client}
 			got, err := e.Observe(tc.args.ctx, tc.args.mg)
 			if diff := cmp.Diff(tc.want.err, err, test.EquateErrors()); diff != "" {
 				t.Errorf("\n%s\ne.Observe(...): -want error, +got error:\n%s\n", tc.reason, diff)

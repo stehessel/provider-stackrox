@@ -27,49 +27,86 @@ import (
 
 // ClusterParameters are the configurable fields of a Cluster.
 type ClusterParameters struct {
-	ID string `json:"id"`
-
-	Name string `json:"name"`
-
-	// +kubebuilder:default=GENERIC_CLUSTER
-	// +kubebuilder:validation:Enum=GENERIC_CLUSTER;KUBERNETES_CLUSTER;OPENSHIFT_CLUSTER;OPENSHIFT4_CLUSTER
-	Type string `json:"type"`
-
+	// +kubebuilder:default=true
 	// +kubebuilder:validation:Optional
-	Labels []string `json:"labels"`
+	AdmissionController bool `json:"admissionController"`
 
-	MainImage string `json:"mainImage"`
+	// +kubebuilder:default=false
+	// +kubebuilder:validation:Optional
+	AdmissionControllerEvents bool `json:"admissionControllerEvents"`
 
-	CollectorImage string `json:"collectorImage"`
+	// +kubebuilder:default=false
+	// +kubebuilder:validation:Optional
+	AdmissionControllerUpdates bool `json:"admissionControllerUpdates"`
 
 	CentralAPIEndpoint string `json:"centralAPIEndpoint"`
 
-	RuntimeSupport bool `json:"runtimeSupport"`
-
-	// +kubebuilder:default=UNSET_COLLECTION
+	// +kubebuilder:default=EBPF
 	// +kubebuilder:validation:Enum=UNSET_COLLECTION;NO_COLLECTION;KERNEL_MODULE;EBPF
+	// +kubebuilder:validation:Optional
 	CollectionMethod string `json:"collectionMethod"`
 
-	AdmissionController bool `json:"admissionController"`
+	// +kubebuilder:default=registry.redhat.io/advanced-cluster-security/rhacs-collector-rhel8
+	// +kubebuilder:validation:Optional
+	CollectorImage string `json:"collectorImage"`
 
-	AdmissionControllerUpdates bool `json:"admissionControllerUpdates"`
+	// +kubebuilder:validation:Optional
+	Labels map[string]string `json:"labels"`
 
-	AdmissionControllerEvents bool `json:"admissionControllerEvents"`
+	// +kubebuilder:default=registry.redhat.io/advanced-cluster-security/rhacs-main-rhel8
+	// +kubebuilder:validation:Optional
+	MainImage string `json:"mainImage"`
 
-	Priority string `json:"priority"`
+	Name string `json:"name"`
 
+	// +kubebuilder:default=true
+	// +kubebuilder:validation:Optional
 	SlimCollector bool `json:"slimCollector"`
 
-	InitBundleID string `json:"initBundleID"`
+	// +kubebuilder:default=true
+	// +kubebuilder:validation:Optional
+	Tolerations bool `json:"tolerations"`
 
-	// +kubebuilder:default=MANAGER_TYPE_UNKNOWN
-	// +kubebuilder:validation:Enum=MANAGER_TYPE_UNKNOWN;MANAGER_TYPE_MANUAL;MANAGER_TYPE_HELM_CHART;MANAGER_TYPE_KUBERNETES_OPERATOR
-	ManagedBy string `json:"managedBy"`
+	// +kubebuilder:default=GENERIC_CLUSTER
+	// +kubebuilder:validation:Enum=GENERIC_CLUSTER;KUBERNETES_CLUSTER;OPENSHIFT_CLUSTER;OPENSHIFT4_CLUSTER
+	// +kubebuilder:validation:Optional
+	Type string `json:"type"`
 }
 
 // ClusterObservation are the observable fields of a Cluster.
 type ClusterObservation struct {
-	ObservableField string `json:"observableField,omitempty"`
+	AdmissionController bool `json:"admissionController,omitempty"`
+
+	AdmissionControllerEvents bool `json:"admissionControllerEvents,omitempty"`
+
+	AdmissionControllerUpdates bool `json:"admissionControllerUpdates,omitempty"`
+
+	CentralAPIEndpoint string `json:"centralAPIEndpoint,omitempty"`
+
+	// +kubebuilder:validation:Enum=UNSET_COLLECTION;NO_COLLECTION;KERNEL_MODULE;EBPF
+	CollectionMethod string `json:"collectionMethod,omitempty"`
+
+	CollectorImage string `json:"collectorImage,omitempty"`
+
+	ID string `json:"id,omitempty"`
+
+	InitBundleID string `json:"initBundleID,omitempty"`
+
+	Labels map[string]string `json:"labels,omitempty"`
+
+	MainImage string `json:"mainImage,omitempty"`
+
+	// +kubebuilder:validation:Enum=MANAGER_TYPE_UNKNOWN;MANAGER_TYPE_MANUAL;MANAGER_TYPE_HELM_CHART;MANAGER_TYPE_KUBERNETES_OPERATOR
+	ManagedBy string `json:"managedBy,omitempty"`
+
+	Name string `json:"name,omitempty"`
+
+	SlimCollector bool `json:"slimCollector,omitempty"`
+
+	Tolerations bool `json:"tolerations,omitempty"`
+
+	// +kubebuilder:validation:Enum=GENERIC_CLUSTER;KUBERNETES_CLUSTER;OPENSHIFT_CLUSTER;OPENSHIFT4_CLUSTER
+	Type string `json:"type,omitempty"`
 }
 
 // A ClusterSpec defines the desired state of a Cluster.

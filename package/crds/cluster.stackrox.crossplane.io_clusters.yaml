@@ -65,15 +65,18 @@ spec:
                 description: ClusterParameters are the configurable fields of a Cluster.
                 properties:
                   admissionController:
+                    default: true
                     type: boolean
                   admissionControllerEvents:
+                    default: false
                     type: boolean
                   admissionControllerUpdates:
+                    default: false
                     type: boolean
                   centralAPIEndpoint:
                     type: string
                   collectionMethod:
-                    default: UNSET_COLLECTION
+                    default: EBPF
                     enum:
                     - UNSET_COLLECTION
                     - NO_COLLECTION
@@ -81,32 +84,22 @@ spec:
                     - EBPF
                     type: string
                   collectorImage:
-                    type: string
-                  id:
-                    type: string
-                  initBundleID:
+                    default: registry.redhat.io/advanced-cluster-security/rhacs-collector-rhel8
                     type: string
                   labels:
-                    items:
+                    additionalProperties:
                       type: string
-                    type: array
+                    type: object
                   mainImage:
-                    type: string
-                  managedBy:
-                    default: MANAGER_TYPE_UNKNOWN
-                    enum:
-                    - MANAGER_TYPE_UNKNOWN
-                    - MANAGER_TYPE_MANUAL
-                    - MANAGER_TYPE_HELM_CHART
-                    - MANAGER_TYPE_KUBERNETES_OPERATOR
+                    default: registry.redhat.io/advanced-cluster-security/rhacs-main-rhel8
                     type: string
                   name:
                     type: string
-                  priority:
-                    type: string
-                  runtimeSupport:
-                    type: boolean
                   slimCollector:
+                    default: true
+                    type: boolean
+                  tolerations:
+                    default: true
                     type: boolean
                   type:
                     default: GENERIC_CLUSTER
@@ -117,21 +110,8 @@ spec:
                     - OPENSHIFT4_CLUSTER
                     type: string
                 required:
-                - admissionController
-                - admissionControllerEvents
-                - admissionControllerUpdates
                 - centralAPIEndpoint
-                - collectionMethod
-                - collectorImage
-                - id
-                - initBundleID
-                - mainImage
-                - managedBy
                 - name
-                - priority
-                - runtimeSupport
-                - slimCollector
-                - type
                 type: object
               providerConfigRef:
                 default:
@@ -310,7 +290,52 @@ spec:
               atProvider:
                 description: ClusterObservation are the observable fields of a Cluster.
                 properties:
-                  observableField:
+                  admissionController:
+                    type: boolean
+                  admissionControllerEvents:
+                    type: boolean
+                  admissionControllerUpdates:
+                    type: boolean
+                  centralAPIEndpoint:
+                    type: string
+                  collectionMethod:
+                    enum:
+                    - UNSET_COLLECTION
+                    - NO_COLLECTION
+                    - KERNEL_MODULE
+                    - EBPF
+                    type: string
+                  collectorImage:
+                    type: string
+                  id:
+                    type: string
+                  initBundleID:
+                    type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    type: object
+                  mainImage:
+                    type: string
+                  managedBy:
+                    enum:
+                    - MANAGER_TYPE_UNKNOWN
+                    - MANAGER_TYPE_MANUAL
+                    - MANAGER_TYPE_HELM_CHART
+                    - MANAGER_TYPE_KUBERNETES_OPERATOR
+                    type: string
+                  name:
+                    type: string
+                  slimCollector:
+                    type: boolean
+                  tolerations:
+                    type: boolean
+                  type:
+                    enum:
+                    - GENERIC_CLUSTER
+                    - KUBERNETES_CLUSTER
+                    - OPENSHIFT_CLUSTER
+                    - OPENSHIFT4_CLUSTER
                     type: string
                 type: object
               conditions:
