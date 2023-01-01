@@ -184,7 +184,7 @@ func (c *external) getInitBundle(ctx context.Context, cr *v1alpha1.InitBundle) (
 	svc := v1.NewClusterInitServiceClient(c.client)
 	resp, err := svc.GetInitBundles(ctx, &v1.Empty{})
 	if err != nil {
-		return nil, errors.Wrap(err, errObserveFailed)
+		return nil, errors.Wrap(err, errGetFailed)
 	}
 	for _, it := range resp.Items {
 		if it.GetName() == meta.GetExternalName(cr) {

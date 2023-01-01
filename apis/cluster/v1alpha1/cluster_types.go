@@ -73,6 +73,7 @@ type ClusterParameters struct {
 	Type string `json:"type"`
 }
 
+// SensorDeployment contains information about the last Sensor connected to the cluster.
 type SensorDeployment struct {
 	AppNamespace        string `json:"appNamespace,omitempty"`
 	AppNamespaceID      string `json:"appNamespaceID,omitempty"`
