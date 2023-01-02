@@ -3,11 +3,12 @@ kind: Provider
 metadata:
   name: provider-stackrox
   annotations:
-    meta.crossplane.io/maintainer: Crossplane Maintainers <info@crossplane.io>
+    meta.crossplane.io/maintainer: Stephan Heßelmann <stephan@stehessel.de>
     meta.crossplane.io/source: github.com/stehessel/provider-stackrox
     meta.crossplane.io/license: Apache-2.0
     meta.crossplane.io/description: |
-      A stackrox that can be used to create Crossplane providers.
+      The Stackrox Crossplane provider adds support for managing the Stackrox
+      security platform in Kubernetes.
 
 spec:
   controller:

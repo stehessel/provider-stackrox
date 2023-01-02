@@ -1,35 +1,45 @@
 # provider-stackrox
 
-`provider-stackrox` is a minimal [Crossplane](https://crossplane.io/) Provider
-that is meant to be used as a stackrox for implementing new Providers. It comes
-with the following features that are meant to be refactored:
+## Work-in-progress
 
-- A `ProviderConfig` type that only points to a credentials `Secret`.
-- A `MyType` resource type that serves as an example managed resource.
-- A managed resource controller that reconciles `MyType` objects and simply
-  prints their configuration in its `Observe` method.
+At this point `provider-stackrox` is only a proof of concept and not recommended for productive use.
 
-## Developing
+## Overview
 
-1. Use this repository as a stackrox to create a new one.
-1. Run `make submodules` to initialize the "build" Make submodule we use for CI/CD.
-1. Rename the provider by running the follwing command:
-```
-  make provider.prepare provider={PascalProviderName}
-```
-4. Add your new type by running the following command:
-```
-make provider.addtype provider={PascalProviderName} group={group} kind={type}
-```
-5. Replace the *sample* group with your new group in apis/{provider}.go
-5. Replace the *mytype* type with your new type in pkg/controller/{provider}.go
-5. Replace the default controller and ProviderConfig implementations with your own
-5. Run `make reviewable` to run code generation, linters, and tests.
-5. Run `make build` to build the provider.
+`provider-stackrox` is the Crossplane infrastructure provider for the [Stackrox](https://stackrox.io).
+Kubernetes security platform. The provider that is built from the source
+code in this repository can be installed into a Crossplane control plane and
+adds the following new functionality:
 
-Refer to Crossplane's [CONTRIBUTING.md] file for more information on how the
-Crossplane community prefers to work. The [Provider Development][provider-dev]
-guide may also be of use.
+- Custom Resource Definitions (CRDs) and associated controllers to provision and configure
+  the Stackrox Central service.
 
-[CONTRIBUTING.md]: https://github.com/crossplane/crossplane/blob/master/CONTRIBUTING.md
-[provider-dev]: https://github.com/crossplane/crossplane/blob/master/docs/contributing/provider_development_guide.md
+## Getting Started and Documentation
+
+For getting started guides, installation, deployment, and administration, see
+our [Documentation](https://crossplane.io/docs).
+
+## Contributing
+
+`provider-stackrox` is a community driven project and we welcome contributions. See the
+Crossplane [Contributing](https://github.com/crossplane/crossplane/blob/master/CONTRIBUTING.md)
+guidelines to get started.
+
+## Report a Bug
+
+For filing bugs, suggesting improvements, or requesting new features, please
+open an [issue](https://github.com/stehessel/provider-stackrox/issues).
+
+## Roadmap
+
+Add support for all of Central's API.
+
+## Code of Conduct
+
+`provider-stackrox` adheres to the same [Code of
+Conduct](https://github.com/crossplane/crossplane/blob/master/CODE_OF_CONDUCT.md)
+as the core Crossplane project.
+
+## Licensing
+
+`provider-stackrox` is under the Apache 2.0 license.
