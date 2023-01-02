@@ -324,6 +324,23 @@ spec:
                     - MANAGER_TYPE_HELM_CHART
                     - MANAGER_TYPE_KUBERNETES_OPERATOR
                     type: string
+                  mostRecentSensor:
+                    description: SensorDeployment contains information about the last
+                      Sensor connected to the cluster.
+                    properties:
+                      appNamespace:
+                        type: string
+                      appNamespaceID:
+                        type: string
+                      appServiceAccountID:
+                        type: string
+                      defaultNamespaceID:
+                        type: string
+                      k8sNodeName:
+                        type: string
+                      systemNamespaceID:
+                        type: string
+                    type: object
                   name:
                     type: string
                   slimCollector:
