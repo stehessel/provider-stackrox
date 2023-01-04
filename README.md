@@ -6,7 +6,7 @@ At this point `provider-stackrox` is only a proof of concept and not recommended
 
 ## Overview
 
-`provider-stackrox` is the Crossplane infrastructure provider for the [Stackrox](https://stackrox.io).
+`provider-stackrox` is the Crossplane infrastructure provider for the [Stackrox](https://stackrox.io)
 Kubernetes security platform. The provider that is built from the source
 code in this repository can be installed into a Crossplane control plane and
 adds the following new functionality:
