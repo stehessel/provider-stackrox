@@ -187,7 +187,7 @@ func (c *external) getInitBundle(ctx context.Context, cr *v1alpha1.InitBundle) (
 		return nil, errors.Wrap(err, errGetFailed)
 	}
 	for _, it := range resp.Items {
-		if it.GetName() == meta.GetExternalName(cr) {
+		if it.GetName() == cr.Spec.ForProvider.Name {
 			return it, nil
 		}
 	}
@@ -210,6 +210,7 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 
 	cr.Status.AtProvider = generateObservation(bundle)
 	cr.SetConditions(xpv1.Available())
+	meta.SetExternalName(cr, bundle.GetName())
 	upToDate, diff := isUpToDate(cr, bundle)
 
 	return managed.ExternalObservation{

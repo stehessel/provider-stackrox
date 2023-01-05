@@ -222,7 +222,7 @@ func (c *external) getCluster(ctx context.Context, cr *v1alpha1.Cluster) (*stora
 		return nil, errors.Wrap(err, errGetFailed)
 	}
 	for _, it := range resp.GetClusters() {
-		if it.GetName() == meta.GetExternalName(cr) {
+		if it.GetName() == cr.Spec.ForProvider.Name {
 			return it, nil
 		}
 	}
@@ -245,6 +245,7 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 
 	cr.Status.AtProvider = generateObservation(cluster)
 	cr.SetConditions(xpv1.Available())
+	meta.SetExternalName(cr, cluster.GetName())
 	upToDate, diff := isUpToDate(cr, cluster)
 
 	return managed.ExternalObservation{
