@@ -99,7 +99,7 @@ require (
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stackrox/scanner v0.0.0-20221122151333-4c8cbd61bfa7 // indirect
+	github.com/stackrox/scanner v0.0.0-20230120022619-96107ead11f0 // indirect
 	github.com/tkuchiki/go-timezone v0.2.2 // indirect
 	github.com/weppos/publicsuffix-go v0.20.1-0.20221031080346-e4081aa8a6de // indirect
 	github.com/zmap/zcrypto v0.0.0-20230124185258-2f5bb6d4210d // indirect
@@ -140,6 +140,6 @@ require (
 
 replace (
 	github.com/gogo/protobuf => github.com/connorgorman/protobuf v1.2.2-0.20210115205927-b892c1b298f7
-	github.com/stackrox/rox => github.com/stackrox/stackrox v0.0.0-20221213204921-1b6ae2de7ff4
+	github.com/stackrox/rox => github.com/stackrox/stackrox v0.0.0-20230125233108-2bd26143bfbe
 	go.uber.org/zap => github.com/stackrox/zap v1.15.1-0.20200720133746-810fd602fd0f
 )

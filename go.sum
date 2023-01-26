@@ -824,10 +824,10 @@ github.com/spf13/viper v1.3.2/go.mod h1:ZiWeW+zYFKm7srdB9IoDzzZXaJaI5eL9QjNiN/DM
 github.com/spf13/viper v1.4.0/go.mod h1:PTJ7Z/lr49W6bUbkmS1V3by4uWynFiR9p7+dSq/yZzE=
 github.com/spf13/viper v1.7.0/go.mod h1:8WkrPz2fc9jxqZNCJI/76HCieCp4Q8HaLFoCha5qpdg=
 github.com/src-d/gcfg v1.4.0/go.mod h1:p/UMsR43ujA89BJY9duynAwIpvqEujIH/jFlfL7jWoI=
-github.com/stackrox/scanner v0.0.0-20221122151333-4c8cbd61bfa7 h1:j3rzF44/AEQHDNN+GDKJUn92hbRsOVgk3/k52ZLcxqQ=
-github.com/stackrox/scanner v0.0.0-20221122151333-4c8cbd61bfa7/go.mod h1:Swr/ZyNzXe9VPMY9pJrQwVJVITMWharJnVlSmHh5J2k=
-github.com/stackrox/stackrox v0.0.0-20221213204921-1b6ae2de7ff4 h1:2tfjC+JBMjq3mbDKcYxcdWup7PriOP53EnE1hXUdFQs=
-github.com/stackrox/stackrox v0.0.0-20221213204921-1b6ae2de7ff4/go.mod h1:FzkS4FP80QsikhinwEjeBD4ywx4N9CEPG1Uixh7jSDA=
+github.com/stackrox/scanner v0.0.0-20230120022619-96107ead11f0 h1:zptoNaSOjU3NWs9CWM00qN3Vm2xNn48SDh3V9e0UDFw=
+github.com/stackrox/scanner v0.0.0-20230120022619-96107ead11f0/go.mod h1:RwswIqA9mUk4ON9GPU9bTFBXzsQFQR8F85Yv/8W8vU0=
+github.com/stackrox/stackrox v0.0.0-20230125233108-2bd26143bfbe h1:pjR7KRsWHTpbIz0I7OEL2N6X20GxAkVVlXnQYqKReYQ=
+github.com/stackrox/stackrox v0.0.0-20230125233108-2bd26143bfbe/go.mod h1:O3N6e0qle49LJ6+s4bJrRSDSwv4Jk1RniMUQUqvFZvE=
 github.com/stackrox/zap v1.15.1-0.20200720133746-810fd602fd0f h1:Ofa3PAa609eSHcHP2kCJDUWUnuEWfiqXhsuppk/QtOE=
 github.com/stackrox/zap v1.15.1-0.20200720133746-810fd602fd0f/go.mod h1:MA8QOfq0BHJwdXa996Y4dYkAqRKB8/1K1QMMZVaNZjQ=
 github.com/stoewer/go-strcase v1.2.0/go.mod h1:IBiWB2sKIp3wVVQ3Y035++gc+knqhUQag1KpM8ahLw8=
