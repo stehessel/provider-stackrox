@@ -11,7 +11,7 @@ require (
 	github.com/stackrox/rox v0.0.0-20211206163732-6a02b74b7066
 	google.golang.org/grpc v1.53.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
-	k8s.io/apimachinery v0.26.2
+	k8s.io/apimachinery v0.26.3
 	k8s.io/client-go v0.26.2
 	sigs.k8s.io/controller-runtime v0.14.5
 	sigs.k8s.io/controller-tools v0.11.3
