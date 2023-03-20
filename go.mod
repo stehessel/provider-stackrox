@@ -6,7 +6,7 @@ require (
 	github.com/crossplane/crossplane-runtime v0.19.1
 	github.com/crossplane/crossplane-tools v0.0.0-20220901191540-806c0b01097b
 	github.com/google/go-cmp v0.5.9
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/stackrox/rox v0.0.0-20211206163732-6a02b74b7066
 	google.golang.org/grpc v1.53.0
